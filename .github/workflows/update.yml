@@ -41,8 +41,11 @@ jobs:
             echo "上游内容无变化，不产生提交"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # 用仓库主人的身份提交，而不是 github-actions[bot]。
+          # 否则每次上游变化都往 Contributors 里塞一个机器人，
+          # 而贡献者列表本该只反映人的工作。
+          git config user.name "leimao2333"
+          git config user.email "leimao2333@users.noreply.github.com"
           git add dist/
           git commit -m "chore: 更新聚合结果 $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
