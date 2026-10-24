@@ -1,0 +1,8 @@
+# 统一 LF：聚合产物要在 Linux 上被 Actions 重新生成，
+# 混进 CRLF 会让每次运行都以为内容变了，刷出无意义的提交。
+* text=auto eol=lf
+
+# 二进制，别碰
+*.png binary
+*.jpg binary
+*.ico binary

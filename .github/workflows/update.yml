@@ -1,0 +1,48 @@
+name: update
+
+# 上游源随时会变（换台、加线路、站点下线），所以定时重抓；
+# 改了清单或脚本也立刻重跑一次，省得等下一个整点。
+on:
+  schedule:
+    # UTC 00:17 / 12:17，即北京时间 08:17 / 20:17。
+    # 避开整点：GitHub 的定时任务在整点最挤，常被推迟十几分钟。
+    - cron: "17 0,12 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "config/sources.json"
+      - "scripts/aggregate.py"
+      - ".github/workflows/update.yml"
+
+permissions:
+  contents: write
+
+# 定时任务和手动触发撞在一起时排队跑，避免两次提交打架
+concurrency:
+  group: aggregate
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 聚合上游源
+        run: python scripts/aggregate.py
+
+      - name: 有变化才提交
+        run: |
+          if git diff --quiet -- dist/; then
+            echo "上游内容无变化，不产生提交"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/
+          git commit -m "chore: 更新聚合结果 $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push

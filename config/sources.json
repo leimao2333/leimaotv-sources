@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "description": "上游源清单。这是本仓库唯一需要人工维护的文件：改这里，dist/ 由 scripts/aggregate.py 自动生成。",
+  "ua": "Mozilla/5.0 (compatible; leimaotv-sources/1.0)",
+  "timeout_seconds": 30,
+  "retries": 2,
+  "filter": {
+    "drop_mp4": true,
+    "drop_date_marker": true,
+    "drop_bare_domain": true,
+    "_note": "drop_mp4 只过滤 .mp4/.m4v 点播文件；.flv 是 HTTP-FLV 直播流，故意保留"
+  },
+  "group_order": [
+    "央视频道",
+    "卫视频道",
+    "地方频道",
+    "体育频道",
+    "电影频道",
+    "电视剧频道",
+    "儿童频道",
+    "少儿频道",
+    "纪录频道",
+    "音乐频道",
+    "戏曲频道",
+    "数字频道",
+    "解说频道",
+    "春晚频道",
+    "直播中国",
+    "港澳台",
+    "国际频道",
+    "其他"
+  ],
+  "sources": [
+    {
+      "id": "iptv4",
+      "name": "IPTV4 · 综合直播",
+      "url": "https://live.zbds.top/tv/iptv4.txt",
+      "type": "LIVE",
+      "format": "txt",
+      "merge": true,
+      "enabled": true,
+      "homepage": "https://live.zbds.top/"
+    },
+    {
+      "id": "iptv6",
+      "name": "IPTV6 · vbskycn",
+      "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv6.txt",
+      "type": "LIVE",
+      "format": "txt",
+      "merge": true,
+      "enabled": true,
+      "homepage": "https://github.com/vbskycn/iptv"
+    },
+    {
+      "id": "jin18",
+      "name": "jin18 · MoonTV 影视配置",
+      "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",
+      "type": "VOD",
+      "format": "moontv-encrypted",
+      "merge": false,
+      "enabled": false,
+      "homepage": "https://github.com/hafrey1/LunaTV-config",
+      "note": "单行加密串，属于 MoonTV 配置，需客户端内置 MoonTV 解密逻辑。LeimaoTV 暂不解析，仅收录地址，故默认不启用。"
+    }
+  ]
+}

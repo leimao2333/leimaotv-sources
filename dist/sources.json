@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "type": "LIVE",
+      "name": "IPTV4 · 综合直播",
+      "url": "https://live.zbds.top/tv/iptv4.txt",
+      "enabled": true
+    },
+    {
+      "type": "LIVE",
+      "name": "IPTV6 · vbskycn",
+      "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv6.txt",
+      "enabled": true
+    },
+    {
+      "type": "VOD",
+      "name": "jin18 · MoonTV 影视配置",
+      "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",
+      "enabled": false
+    }
+  ]
+}
