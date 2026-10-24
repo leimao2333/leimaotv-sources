@@ -48,4 +48,6 @@ jobs:
           git config user.email "leimao2333@users.noreply.github.com"
           git add dist/
           git commit -m "chore: 更新聚合结果 $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
+          # 显式写 ref：定时任务（schedule）下 checkout 出来的是 detached HEAD，
+          # 光写 `git push` 会在「当前不在任何分支」上失败。
+          git push origin "HEAD:${GITHUB_REF_NAME}"
