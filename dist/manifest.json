@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-10-24 09:42:26 +0800",
-  "generated_at_iso": "2026-10-24T09:42:26+08:00",
-  "fingerprint": "a4d81b421c138500",
-  "total_channels": 538,
+  "generated_at": "2026-10-24 15:59:47 +0000",
+  "generated_at_iso": "2026-10-24T15:59:47+00:00",
+  "fingerprint": "bac9aea71c702aa1",
+  "total_channels": 670,
   "total_groups": 12,
   "groups": [
     {
       "name": "央视频道",
-      "count": 9
+      "count": 48
     },
     {
       "name": "卫视频道",
-      "count": 26
+      "count": 78
     },
     {
       "name": "地方频道",
-      "count": 306
+      "count": 322
     },
     {
       "name": "体育频道",
@@ -23,11 +23,11 @@
     },
     {
       "name": "电影频道",
-      "count": 62
+      "count": 82
     },
     {
       "name": "儿童频道",
-      "count": 9
+      "count": 11
     },
     {
       "name": "纪录频道",
@@ -35,7 +35,7 @@
     },
     {
       "name": "音乐频道",
-      "count": 3
+      "count": 5
     },
     {
       "name": "数字频道",
@@ -51,19 +51,19 @@
     },
     {
       "name": "直播中国",
-      "count": 76
+      "count": 77
     }
   ],
   "outputs": [
     {
       "path": "dist/live.txt",
-      "bytes": 42175,
-      "sha256": "434ca6c20c3cfbd3"
+      "bytes": 54479,
+      "sha256": "e22b4914c9c1eba8"
     },
     {
       "path": "dist/live.m3u",
-      "bytes": 76865,
-      "sha256": "1c342a43027ed6f6"
+      "bytes": 97277,
+      "sha256": "7455e48484e9df4c"
     },
     {
       "path": "dist/sources.json",
@@ -79,10 +79,10 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 45507,
+      "bytes": 57983,
       "merged": true,
-      "accepted": 538,
-      "duplicated": 2,
+      "accepted": 670,
+      "duplicated": 4,
       "filtered": [
         {
           "name": "支持作者",
@@ -180,7 +180,7 @@
           "reason": "单文件点播地址（.mp4 等），不是直播流"
         },
         {
-          "name": "2026-10-24 06:23:34",
+          "name": "2026-10-24 18:27:43",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -205,7 +205,7 @@
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-10-24 06:23:34",
+          "name": "2026-10-24 18:27:43",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
