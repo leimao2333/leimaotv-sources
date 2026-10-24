@@ -1,6 +1,7 @@
 {
-  "generated_at": "2026-10-24 09:35:11 +0800",
-  "generated_at_iso": "2026-10-24T09:35:11+08:00",
+  "generated_at": "2026-10-24 09:42:26 +0800",
+  "generated_at_iso": "2026-10-24T09:42:26+08:00",
+  "fingerprint": "a4d81b421c138500",
   "total_channels": 538,
   "total_groups": 12,
   "groups": [
@@ -57,20 +58,17 @@
     {
       "path": "dist/live.txt",
       "bytes": 42175,
-      "sha256": "434ca6c20c3cfbd3",
-      "changed": true
+      "sha256": "434ca6c20c3cfbd3"
     },
     {
       "path": "dist/live.m3u",
       "bytes": 76865,
-      "sha256": "1c342a43027ed6f6",
-      "changed": true
+      "sha256": "1c342a43027ed6f6"
     },
     {
       "path": "dist/sources.json",
       "bytes": 584,
-      "sha256": "927f453d2ca11180",
-      "changed": false
+      "sha256": "927f453d2ca11180"
     }
   ],
   "upstreams": [

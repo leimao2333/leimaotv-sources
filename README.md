@@ -23,7 +23,7 @@ https://gh-proxy.com/raw.githubusercontent.com/leimao2333/leimaotv-sources/main/
 | 通用订阅（推荐） | [`dist/live.txt`](dist/live.txt) | TXT，`分组,#genre#` |
 | 需要 M3U 的播放器 | [`dist/live.m3u`](dist/live.m3u) | M3U |
 | 一次性导入三条原始源 | [`dist/sources.json`](dist/sources.json) | LeimaoTV 源备份 v1 |
-| 每个源的状态与条数 | [`dist/manifest.json`](dist/manifest.json) | JSON |
+| 每个源的状态与条数 | [`dist/manifest.json`](dist/manifest.json) | JSON（含内容指纹、过滤明细） |
 
 ---
 
@@ -68,7 +68,9 @@ TiviMate、PotPlayer、VLC、Kodi 等直接用上面「一条地址」里的 `li
 
 1. 抓取三条上游；
 2. 合并、去重、重新分组、过滤非直播条目；
-3. 只在内容真的变了时提交，不会刷出一堆空 commit。
+3. 只在内容真的变了时提交，不会刷出一堆空 commit。判据是 `manifest.json` 里的 `fingerprint`（统计 + 分组 + 三个产物的 sha256 + 上游状态），指纹一致就原样保留旧文件。
+
+> `manifest.json` 的 `generated_at` 是**内容最后更新时间**，不是「最后一次抓取时间」。上游没变化时它不会跳动——这样 Actions 才不会天天产出只差时间戳的提交。想知道最近一次检查，看 [Actions 运行记录](https://github.com/leimao2333/leimaotv-sources/actions)。
 
 上游挂掉不会让整次聚合失败——单源超时/404 只记进 `manifest.json` 的 `error` 字段，其余源照常输出。
 
