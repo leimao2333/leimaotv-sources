@@ -345,6 +345,33 @@ def write_if_changed(path: Path, content: str) -> dict:
     }
 
 
+def manifest_payload(channels: list[dict], counts: dict[str, int], order: list[str],
+                     outputs: list[dict], report: list[dict]) -> dict:
+    """manifest 里**不含时间**的部分。时间单独处理，否则每天都会因为时间戳产生提交。"""
+    return {
+        "total_channels": len(channels),
+        "total_groups": len(counts),
+        "groups": [{"name": g, "count": counts[g]} for g in order_groups(channels, order)],
+        # changed 是本次运行的临时状态，不进产物：它会让指纹每次都不同
+        "outputs": [{"path": o["path"], "bytes": o["bytes"], "sha256": o["sha256"]} for o in outputs],
+        "upstreams": report,
+    }
+
+
+def fingerprint_of(payload: dict) -> str:
+    blob = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
+def read_fingerprint(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("fingerprint")
+    except (ValueError, OSError):
+        return None
+
+
 # --------------------------------------------------------------------------- #
 def main() -> int:
     parser = argparse.ArgumentParser(description="聚合多个上游源为 dist/ 订阅文件")
@@ -384,16 +411,24 @@ def main() -> int:
     outputs.append(write_if_changed(DIST / "live.m3u", build_m3u(channels, order)))
     outputs.append(write_if_changed(DIST / "sources.json", build_sources_json(cfg)))
 
-    manifest = {
-        "generated_at": generated.strftime("%Y-%m-%d %H:%M:%S %z"),
-        "generated_at_iso": generated.isoformat(timespec="seconds"),
-        "total_channels": len(channels),
-        "total_groups": len(counts),
-        "groups": [{"name": g, "count": counts[g]} for g in order_groups(channels, order)],
-        "outputs": outputs,
-        "upstreams": report,
-    }
-    outputs.append(write_if_changed(DIST / "manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n"))
+    payload = manifest_payload(channels, counts, order, outputs, report)
+    fingerprint = fingerprint_of(payload)
+    manifest_path = DIST / "manifest.json"
+
+    if read_fingerprint(manifest_path) == fingerprint:
+        # 内容一字未变：保留上次的 generated_at。
+        # 否则每跑一次时间戳就变，Actions 会天天产出「只改了时间」的空提交。
+        print(f"  未变 dist/manifest.json（内容指纹 {fingerprint} 与上次一致）")
+    else:
+        manifest = {
+            "generated_at": generated.strftime("%Y-%m-%d %H:%M:%S %z"),
+            "generated_at_iso": generated.isoformat(timespec="seconds"),
+            "fingerprint": fingerprint,
+            **payload,
+        }
+        outputs.append(
+            write_if_changed(manifest_path, json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+        )
 
     for item in outputs:
         print(f"  {'写入' if item['changed'] else '未变'} {item['path']} ({item['bytes']} B)")
