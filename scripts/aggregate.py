@@ -45,7 +45,9 @@ GENRE_MARK = "#genre#"
 # 判断「这一行是不是能拆出名称 + 地址」时，用 http 的位置而不是逗号：
 # 名称里带逗号（`CCTV5+,高清`）、地址里带逗号都不至于拆错。
 HTTP_AT = re.compile(r"https?://", re.IGNORECASE)
-DATE_MARKER = re.compile(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}")
+# 上游的「更新时间」占位行两种写法：2026-10-25 06:04 与 20261025 06:04。
+# 只认 8 位数字后面紧跟空白/行尾/T 的形式，免得把「2022冬奥纪实」这类真频道名误杀。
+DATE_MARKER = re.compile(r"^(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{8}(?=\s|$|T))")
 BARE_DOMAIN = re.compile(r"^(?:www\.)?[a-z0-9-]+\.(?:com|cn|net|org|top|cc|tv|me|io)$", re.I)
 # 频道名里不许出现的字符：逗号会破坏 TXT 的「名称,地址」结构，换行同理
 NAME_CLEAN = re.compile(r"[,，\r\n\t]+")
@@ -91,10 +93,26 @@ def decode(raw: bytes) -> str:
 # --------------------------------------------------------------------------- #
 # 解析
 # --------------------------------------------------------------------------- #
+# iptv-org 把清晰度和状态塞进台名：`Bingtuan Satellite TV (540p) [Not 24/7]`。
+# 一个台可能挂好几个括号，所以要反复剥到不动为止。
+NAME_SUFFIX = re.compile(r"\s*(?:\(\d+[pi]\))(?:\[[^\]]*\])?\s*$|\s*\[[^\]]*\]\s*$")
+GEO_BLOCKED = re.compile(r"\[Geo-blocked\]", re.I)
+
+
 def clean_name(name: str) -> str:
     name = ZERO_WIDTH.sub("", name)
     name = NAME_CLEAN.sub(" ", name)
     return re.sub(r"\s{2,}", " ", name).strip()
+
+
+def clean_channel_name(name: str) -> str:
+    """组名之外，频道名单独洗一遍：去掉 `(1080p)` `[Not 24/7]` 这类括号后缀。"""
+    name = clean_name(name)
+    prev = None
+    while prev != name:
+        prev = name
+        name = NAME_SUFFIX.sub("", name).strip()
+    return re.sub(r"\s{2,}", " ", name).strip() or "未命名"
 
 
 def split_entry(line: str) -> tuple[str, str] | None:
@@ -159,48 +177,119 @@ def parse_m3u(text: str) -> tuple[list[dict], list[str]]:
     return channels, junk
 
 
-def is_marker(name: str, cfg: dict) -> str | None:
+# 判断「这个台对中文电视列表有没有意义」：`Xizang TV Chinese` 留，`ABN China` 也留
+# （有明确的中文标识），而 `8TV` `Ando TV` 这类纯英文名在中文列表里没法用。
+CJK = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+ZH_IDENTITY = re.compile(r"\b(?:Chinese|Mandarin|Cantonese|Hokkien|Hakka)\b|中文|华语|国语|粤语", re.I)
+
+
+def has_chinese_identity(name: str) -> bool:
+    return bool(CJK.search(name) or ZH_IDENTITY.search(name))
+
+
+def merged_filter(cfg: dict, src: dict) -> dict:
+    """源自己的 filter 覆盖全局 filter。
+
+    过滤强度是**按源**的：iptv-org 那种全英文台名的源需要额外丢弃纯英文条目，
+    但同一条规则套在其他源上会误杀 `HBO` `Discovery` 这类正常英文名频道。
+    """
+    f = dict(cfg.get("filter", {}))
+    f.update(src.get("filter") or {})
+    return f
+
+
+def is_marker(name: str, f: dict) -> str | None:
     """返回过滤原因；None 表示留着。原因会原样写进 manifest，方便事后追溯。"""
-    f = cfg.get("filter", {})
     if f.get("drop_date_marker") and DATE_MARKER.match(name):
         return "日期标记行（上游的更新时间戳，不是频道）"
     if f.get("drop_bare_domain") and BARE_DOMAIN.match(name):
         return "域名标记行（上游的站点署名，不是频道）"
+    if f.get("drop_geo_blocked") and GEO_BLOCKED.search(name):
+        return "地区封锁标记（[Geo-blocked]），目标用户基本播不了"
+    if f.get("drop_non_chinese_name") and not has_chinese_identity(name):
+        return "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
     return None
 
 
-def is_point_file(url: str, cfg: dict) -> bool:
+def is_point_file(url: str, f: dict) -> bool:
     """单文件点播地址（历史春晚回放、短视频）不该混进直播列表。
 
     只认 `.mp4/.m4v` 这类点播容器。**故意不包含 `.flv`** —— HTTP-FLV 是
     地方台直播的常用承载（如 `channellive/gztv.flv`），按扩展名一刀切会把
     真直播误杀。
     """
-    if not cfg.get("filter", {}).get("drop_mp4"):
+    if not f.get("drop_mp4"):
         return False
     path = url.split("?", 1)[0].split("#", 1)[0].lower()
     return path.endswith((".mp4", ".m4v"))
 
 
 # --------------------------------------------------------------------------- #
+# 组名归一
+# --------------------------------------------------------------------------- #
+def canonical_group(name: str, cfg: dict) -> str:
+    """把各上游自己的组名折成本仓统一的组名。
+
+    三级判断，顺序不能换：
+    1. `group_alias` 显式别名（`电影` → `电影频道`）
+    2. 已经是 `group_order` 里的标准名（`央视频道` 原样留下）
+    3. `group_rules.local_suffix` 兜底：以「频道」结尾却不是以上任何一种，
+       判为省级/城市地方台（`浙江频道` `上海频道` → `地方频道`）。
+       少了这一步，上游会把 28 个地名拆成 28 个分组。
+    """
+    name = clean_name(name) or "其他"
+    # iptv-org 的 group-title 支持多值：`Animation;Kids`、`Education;Lifestyle;Science`。
+    # 取第一个，否则十来种组合会各自变成独立分组。
+    if ";" in name:
+        name = name.split(";")[0].strip() or "其他"
+    alias = cfg.get("group_alias", {})
+    if name in alias:
+        return alias[name]
+    if name in cfg.get("group_order", []):
+        return name
+    for suffix in cfg.get("group_rules", {}).get("local_suffix", []):
+        if len(name) > len(suffix) and name.endswith(suffix):
+            return "地方频道"
+    return name
+
+
+# --------------------------------------------------------------------------- #
 # 组装
 # --------------------------------------------------------------------------- #
+# 上游有时把测速/分辨率作为附加列拼在地址后面：`...&authid=0,0.4,720x576`。
+# 那不是 URL 的一部分，留着等于把一个带垃圾尾巴的地址交给播放器。
+URL_TAIL_META = re.compile(r"(?:,\s*\d+(?:\.\d+)?)+(?:,\s*\d+\s*[xX]\s*\d+)?$")
+
+
 def normalize_url(url: str) -> str:
-    # 只做无损归一：去空白。不补 scheme、不改大小写、不动查询串 ——
+    # 只做无损归一：去空白、去上游附加列。不补 scheme、不改大小写、不动查询串 ——
     # 这些参数（authid / key）恰恰是许多源能播的关键。
-    return url.strip()
+    url = url.strip().strip('"').strip()
+    url = URL_TAIL_META.sub("", url)
+    return url.rstrip(",， \t")
 
 
-def aggregate(cfg: dict) -> tuple[dict, list[dict]]:
+def aggregate(cfg: dict) -> tuple[dict[str, list[dict]], list[dict]]:
+    """按 `output` 字段把源分流成多条通道，返回 {通道名: 频道列表}。
+
+    `output` 缺省即 `main`，进 dist/live.txt（主订阅）；写了别的名字就单独出路
+    独立的 dist/<名字>.txt。之所以要分流，是因为有的上游根本不是电视台 ——
+    CCSH 的 live_platforms.m3u 有 2600 多条「一起看」主播直播间，并进主订阅会
+    把 600 多个电视频道直接淹掉。分开放，用户要就单独导入。
+    """
     ua = cfg.get("ua", "Mozilla/5.0")
     timeout = int(cfg.get("timeout_seconds", 30))
     retries = int(cfg.get("retries", 2))
 
-    merged: list[dict] = []
-    seen: set[tuple[str, str, str]] = set()
+    streams: dict[str, list[dict]] = {}
+    seen: dict[str, set[tuple[str, str, str]]] = {}
     report: list[dict] = []
 
     for src in cfg["sources"]:
+        stream = src.get("output") or "main"
+        bucket = streams.setdefault(stream, [])
+        taken = seen.setdefault(stream, set())
+
         if not src.get("merge"):
             # 不参与频道合并的源（如加密的 MoonTV 配置）只做可达性体检
             raw, status, err = fetch(src["url"], ua, timeout, retries)
@@ -214,6 +303,7 @@ def aggregate(cfg: dict) -> tuple[dict, list[dict]]:
                     "http": status,
                     "bytes": len(raw),
                     "merged": False,
+                    "stream": stream,
                     "accepted": 0,
                     "duplicated": 0,
                     "error": err,
@@ -233,6 +323,7 @@ def aggregate(cfg: dict) -> tuple[dict, list[dict]]:
             "http": status,
             "bytes": len(raw),
             "merged": True,
+            "stream": stream,
             "accepted": 0,
             "duplicated": 0,
             "filtered": [],
@@ -247,24 +338,30 @@ def aggregate(cfg: dict) -> tuple[dict, list[dict]]:
             else:
                 channels, junk = parse_txt(text)
 
+            f = merged_filter(cfg, src)
             marker_junk: list[str] = []
             for ch in channels:
-                reason = is_marker(ch["name"], cfg)
+                reason = is_marker(ch["name"], f)
                 if reason:
                     entry["filtered"].append({"name": ch["name"], "url": ch["url"], "reason": reason})
                     continue
-                if is_point_file(ch["url"], cfg):
+                if is_point_file(ch["url"], f):
                     entry["filtered"].append(
                         {"name": ch["name"], "url": ch["url"], "reason": "单文件点播地址（.mp4 等），不是直播流"}
                     )
                     continue
+                ch["name"] = clean_channel_name(ch["name"])
+                # 组名归一只作用在主订阅。独立通道保留上游原组名，
+                # 否则「一起看」「原创IP」这类会被 local_suffix 规则误折进地方频道。
+                if stream == "main":
+                    ch["group"] = canonical_group(ch["group"], cfg)
                 ch["url"] = normalize_url(ch["url"])
                 key = (ch["group"], ch["name"], ch["url"])
-                if key in seen:
+                if key in taken:
                     entry["duplicated"] += 1
                     continue
-                seen.add(key)
-                merged.append({**ch, "source": src["id"]})
+                taken.add(key)
+                bucket.append({**ch, "source": src["id"]})
                 entry["accepted"] += 1
 
             # 解析不出来的行也留档：格式变化时这里是第一现场
@@ -273,7 +370,7 @@ def aggregate(cfg: dict) -> tuple[dict, list[dict]]:
 
         report.append(entry)
 
-    return {"channels": merged}, report
+    return streams, report
 
 
 def order_groups(channels: list[dict], order: list[str]) -> list[str]:
@@ -315,19 +412,41 @@ def build_sources_json(cfg: dict) -> str:
 
     这里放的是**上游原始地址**而非本仓聚合文件 —— 用户导入后三条源各自进列表、
     各自刷新，任一上游挂掉只影响它自己那一栏。
+
+    `format` 字段是给客户端识别源格式的：moontv 加密订阅要标成 `moontv`，
+    否则客户端会当成普通苹果CMS 接口去解析（拿一个 Base58 串当 JSON 解析必失败）。
+    config 里写的是人类可读的 `moontv-encrypted`，这里转成客户端的枚举名 `moontv`。
+
+    地址优先取 `client_url`：抓取在本仓 Actions 的海外机器上跑，直连 GitHub 最快；
+    而这份文件是给**国内电视盒子**里的客户端导入的，raw.githubusercontent.com
+    在那边基本连不上。两个场景最优解不同，所以分成两个字段，别混用。
     """
     items = []
     for src in cfg["sources"]:
-        items.append(
-            {
-                "type": src.get("type", "LIVE"),
-                "name": src["name"],
-                "url": src["url"],
-                # enabled 跟 config 走：MoonTV 加密配置默认为 false
-                "enabled": bool(src.get("enabled", True)),
-            }
-        )
+        item = {
+            "type": src.get("type", "LIVE"),
+            "name": src["name"],
+            "url": src.get("client_url") or src["url"],
+            # enabled 跟 config 走：MoonTV 加密配置默认为 false
+            "enabled": bool(src.get("enabled", True)),
+        }
+        fmt = normalize_format(src.get("format"))
+        if fmt:
+            item["format"] = fmt
+        items.append(item)
     return json.dumps({"version": 1, "sources": items}, ensure_ascii=False, indent=2) + "\n"
+
+
+def normalize_format(fmt: str | None) -> str | None:
+    """把 config 里的格式名归一成客户端枚举名。直播源（txt/m3u）不标 format。"""
+    if not fmt:
+        return None
+    f = fmt.lower()
+    if f in ("moontv", "moontv-encrypted", "moontv_encrypted"):
+        return "moontv"
+    if f == "applecms":
+        return "applecms"
+    return None  # txt / m3u 等直播格式不需要客户端做格式区分
 
 
 def write_if_changed(path: Path, content: str) -> dict:
@@ -382,8 +501,8 @@ def main() -> int:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-    merged, report = aggregate(cfg)
-    channels = merged["channels"]
+    streams, report = aggregate(cfg)
+    channels = streams.get("main", [])
     order = cfg.get("group_order", [])
 
     counts: dict[str, int] = {}
@@ -392,15 +511,21 @@ def main() -> int:
 
     generated = datetime.now(timezone.utc).astimezone()
 
-    print(f"上游 {len(report)} 条，聚合出 {len(channels)} 个频道，{len(counts)} 个分组")
+    print(f"上游 {len(report)} 条，主订阅 {len(channels)} 个频道、{len(counts)} 个分组")
     for item in report:
         state = "OK " if not item["error"] else "ERR"
-        line = f"  [{state}] {item['id']:<8} http={item['http']:<3} bytes={item['bytes']:<7}"
+        stream = item.get("stream", "main")
+        line = f"  [{state}] {item['id']:<15} http={item['http']:<3} bytes={item['bytes']:<7}"
         if item["merged"]:
             line += f" 收录={item['accepted']:<4} 重复={item['duplicated']:<3} 过滤={len(item.get('filtered', []))}"
         if item["error"]:
             line += f"  错误={item['error']}"
+        if stream != "main":
+            line += f"  → 独立通道 {stream}"
         print(line)
+
+    # 独立通道各自出文件；空通道不落盘，免得上游空窗期留下 0 频道的死文件
+    extra = {name: chans for name, chans in streams.items() if name != "main" and chans}
 
     if args.check:
         print("--check：不写文件。")
@@ -409,6 +534,9 @@ def main() -> int:
     outputs = []
     outputs.append(write_if_changed(DIST / "live.txt", build_txt(channels, order)))
     outputs.append(write_if_changed(DIST / "live.m3u", build_m3u(channels, order)))
+    for name, chans in extra.items():
+        outputs.append(write_if_changed(DIST / f"{name}.txt", build_txt(chans, order)))
+        outputs.append(write_if_changed(DIST / f"{name}.m3u", build_m3u(chans, order)))
     outputs.append(write_if_changed(DIST / "sources.json", build_sources_json(cfg)))
 
     payload = manifest_payload(channels, counts, order, outputs, report)

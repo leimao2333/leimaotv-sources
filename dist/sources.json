@@ -3,21 +3,34 @@
   "sources": [
     {
       "type": "LIVE",
-      "name": "IPTV4 · 综合直播",
-      "url": "https://live.zbds.top/tv/iptv4.txt",
+      "name": "IPTV4 · vbskycn",
+      "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.txt",
       "enabled": true
     },
     {
       "type": "LIVE",
-      "name": "IPTV6 · vbskycn",
+      "name": "CCSH · 综合直播",
+      "url": "https://gh-proxy.com/raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live.txt",
+      "enabled": true
+    },
+    {
+      "type": "LIVE",
+      "name": "IPTV6 · vbskycn（IPv6）",
       "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv6.txt",
+      "enabled": false
+    },
+    {
+      "type": "LIVE",
+      "name": "CCSH · 直播平台（独立）",
+      "url": "https://gh-proxy.com/raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_platforms.m3u",
       "enabled": true
     },
     {
       "type": "VOD",
       "name": "jin18 · MoonTV 影视配置",
       "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",
-      "enabled": false
+      "enabled": false,
+      "format": "moontv"
     }
   ]
 }
