@@ -21,6 +21,12 @@
     },
     {
       "type": "LIVE",
+      "name": "iptv-org · 中文频道",
+      "url": "https://iptv-org.github.io/iptv/languages/zho.m3u",
+      "enabled": true
+    },
+    {
+      "type": "LIVE",
       "name": "CCSH · 直播平台（独立）",
       "url": "https://gh-proxy.com/raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/live_platforms.m3u",
       "enabled": true

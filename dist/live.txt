@@ -2529,6 +2529,7 @@ CN卡通,http://zby.lskk.top/cdnlive.php?mode=play&id=719f97d8d7f370913f80a4e5b9
 龙华卡通,https://8.fast.hidns.vip/163189/lhkt
 龙华卡通,http://8.fast.hidns.vip/163189/lhkt
 龙华卡通,http://zby.lskk.top/cdnlive.php?mode=play&id=2d1d0e82d6fe8c559db4f73e40344a9f&token=wUJLMUpsYJOdEdkpd5OwyC27t69vzy3W
+God Stands Kids Club TV Chinese,https://online.godstands.tv:5443/WebRTCApp/streams/KidsChinese.m3u8
 
 纪录频道,#genre#
 CGTN纪录,https://0472.org/hls/cgtnd.m3u8
@@ -2573,6 +2574,7 @@ CGTN纪录,https://english-livetx.cgtn.com/hls/yypdjlctzb_hd.m3u8
 易中天品三国,https://yg.ygbox.de5.net/huya.php?id=11602032
 航拍中国第一季,http://newcntv.qcloudcdn.com/asp/hls/4000/0303000a/3/default/8edf3fb6a69148ea9a7dc0b5a9d99fdb/4000.m3u8
 航拍中国第三季,http://newcntv.qcloudcdn.com/asp/hls/1200/0303000a/3/default/18a8a559464448dbaf60d33913e09aea/1200.m3u8
+Hakka TV,https://h5cul1yar48um3t.wcetv.com/hls/hakkatv.m3u8
 
 音乐频道,#genre#
 AMC音乐,https://AMChls.wns.live/hls/stream.m3u8
@@ -3053,3 +3055,11 @@ VOA美国之音,https://voa-ingest.akamaized.net/hls/live/2033878/tvmc08/playlis
 
 其他,#genre#
 中国之声,https://ngcdn001.cnr.cn/live/zgzs/index.m3u8
+Angel TV Chinese,https://janya-digimix.akamaized.net/vglive-sk-999451/chinese/ngrp:angelchinese_all/playlist.m3u8
+CGNTV Chinese,https://d3e05csss9c272.cloudfront.net/out/v1/f0bf71c57581470fb9379f603e8f5d83/CGNWebLiveCN.m3u8
+God Stands TV Chinese,https://online.godstands.tv:5443/WebRTCApp/streams/chineselive.m3u8
+LLBN TV Chinese,https://brightstar-chinese-pull-secure.akamaized.net/brightstarchinese/stream.m3u8
+Peace TV Chinese,https://dzkyvlfyge.erbvr.com/PeaceTvChinese/index.m3u8
+Phoenix Chinese Channel,http://223.110.245.139/ott.js.chinamobile.com/PLTV/3/224/3221226922/index.m3u8
+TV BRICS Chinese,https://chibrics.mediacdn.ru/cdn/brics/chinese/playlist.m3u8
+Xizang TV Chinese,https://pili-live-hls-zdzz-tv.zzxwcm.cn/zdzz-tv/nqzh.m3u8
