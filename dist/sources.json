@@ -32,6 +32,12 @@
       "enabled": true
     },
     {
+      "type": "LIVE",
+      "name": "成都/四川电信 · IPTV",
+      "url": "https://iptv.zsdc.eu.org/home/iptv.m3u8",
+      "enabled": true
+    },
+    {
       "type": "VOD",
       "name": "jin18 · MoonTV 影视配置",
       "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",

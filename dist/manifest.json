@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-10-25 16:27:38 +0000",
-  "generated_at_iso": "2026-10-25T16:27:38+00:00",
-  "fingerprint": "8885604005404f81",
-  "total_channels": 3026,
+  "generated_at": "2026-10-26 09:34:47 +0800",
+  "generated_at_iso": "2026-10-26T09:34:47+08:00",
+  "fingerprint": "6e977446f5e6be92",
+  "total_channels": 3023,
   "total_groups": 19,
   "groups": [
     {
       "name": "央视频道",
-      "count": 553
+      "count": 552
     },
     {
       "name": "卫视频道",
-      "count": 745
+      "count": 749
     },
     {
       "name": "地方频道",
-      "count": 843
+      "count": 840
     },
     {
       "name": "体育频道",
@@ -23,7 +23,7 @@
     },
     {
       "name": "电影频道",
-      "count": 181
+      "count": 180
     },
     {
       "name": "电视剧频道",
@@ -35,7 +35,7 @@
     },
     {
       "name": "儿童频道",
-      "count": 74
+      "count": 73
     },
     {
       "name": "纪录频道",
@@ -47,7 +47,7 @@
     },
     {
       "name": "戏曲频道",
-      "count": 6
+      "count": 5
     },
     {
       "name": "游戏频道",
@@ -85,28 +85,38 @@
   "outputs": [
     {
       "path": "dist/live.txt",
-      "bytes": 259249,
-      "sha256": "e2071479ea8f8abc"
+      "bytes": 259388,
+      "sha256": "82b0274ebad6bf7b"
     },
     {
       "path": "dist/live.m3u",
-      "bytes": 445850,
-      "sha256": "de51bcd9059e6582"
+      "bytes": 446118,
+      "sha256": "0ca0ff6946bea99e"
     },
     {
       "path": "dist/platforms.txt",
-      "bytes": 234355,
-      "sha256": "53886ed652828ac3"
+      "bytes": 144411,
+      "sha256": "9e7e71e77397685a"
     },
     {
       "path": "dist/platforms.m3u",
-      "bytes": 493353,
-      "sha256": "e1ce160e7aa21890"
+      "bytes": 305598,
+      "sha256": "af423b9f58fb6373"
+    },
+    {
+      "path": "dist/sichuan.txt",
+      "bytes": 12849,
+      "sha256": "30e7be5892874cf6"
+    },
+    {
+      "path": "dist/sichuan.m3u",
+      "bytes": 24816,
+      "sha256": "98fa31c4d93e0d32"
     },
     {
       "path": "dist/sources.json",
-      "bytes": 1245,
-      "sha256": "7806f7fee946913f"
+      "bytes": 1403,
+      "sha256": "4e8093a333a17bc8"
     }
   ],
   "upstreams": [
@@ -117,10 +127,10 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 52690,
+      "bytes": 52762,
       "merged": true,
       "stream": "main",
-      "accepted": 607,
+      "accepted": 608,
       "duplicated": 3,
       "filtered": [
         {
@@ -219,7 +229,7 @@
           "reason": "单文件点播地址（.mp4 等），不是直播流"
         },
         {
-          "name": "2026-10-25 18:26:40",
+          "name": "2026-10-26 06:26:40",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -238,14 +248,14 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 246077,
+      "bytes": 246140,
       "merged": true,
       "stream": "main",
-      "accepted": 2409,
-      "duplicated": 331,
+      "accepted": 2405,
+      "duplicated": 332,
       "filtered": [
         {
-          "name": "20261025 06:04",
+          "name": "20261026 06:10",
           "url": "http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226537/index.m3u8",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -621,7 +631,7 @@
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-10-25 18:26:40",
+          "name": "2026-10-26 06:26:41",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -1004,6 +1014,11 @@
         {
           "name": "CTi Variety (720p)",
           "url": "http://23.237.10.66:16372",
+          "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
+        },
+        {
+          "name": "CTS (1080p)",
+          "url": "rtmp://59.124.75.138:1935/sat/tv111",
           "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
         },
         {
@@ -1685,11 +1700,6 @@
           "name": "Zhejiang Satellite TV (1080p)",
           "url": "http://39.134.115.163:8080/PLTV/88888910/224/3221225703/index.m3u8",
           "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
-        },
-        {
-          "name": "rtmp://59.124.75.138:1935/sat/tv111",
-          "url": "",
-          "reason": "无法解析为「名称,地址」"
         }
       ],
       "error": null
@@ -1701,21 +1711,67 @@
       "type": "LIVE",
       "format": "m3u",
       "http": 200,
-      "bytes": 771287,
+      "bytes": 505121,
       "merged": true,
       "stream": "platforms",
-      "accepted": 3957,
+      "accepted": 2601,
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-10-25 22:01:16",
+          "name": "2026-10-26 06:11:05",
           "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/time/time.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "zsdc_sc",
+      "name": "成都/四川电信 · IPTV",
+      "url": "https://iptv.zsdc.eu.org/home/iptv.m3u8",
+      "type": "LIVE",
+      "format": "m3u",
+      "http": 200,
+      "bytes": 47946,
+      "merged": true,
+      "stream": "sichuan",
+      "accepted": 148,
+      "duplicated": 0,
+      "filtered": [
+        {
+          "name": "湖南卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.122:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
         },
         {
-          "name": "2026.10.25",
-          "url": "https://live.ottiptv.cc/bilibili/1917336393",
-          "reason": "日期标记行（上游的更新时间戳，不是频道）"
+          "name": "江苏卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.123:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
+        },
+        {
+          "name": "浙江卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.124:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
+        },
+        {
+          "name": "东方卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.125:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
+        },
+        {
+          "name": "深圳卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.126:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
+        },
+        {
+          "name": "广东卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.127:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
+        },
+        {
+          "name": "山东卫视4K",
+          "url": "http://192.168.100.1:4022/udp/239.94.0.128:5140",
+          "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"
         }
       ],
       "error": null
@@ -1735,6 +1791,18 @@
       "error": null,
       "note": "单行加密串，属于 MoonTV 配置，需客户端内置 MoonTV 解密逻辑。LeimaoTV 暂不解析，仅收录地址，故默认不启用。",
       "sha256": "9b4de2cea4eedcaa"
+    }
+  ],
+  "epg": [
+    {
+      "id": "zsdc",
+      "name": "zsdc · 央视/卫视节目单",
+      "url": "https://epg.zsdc.eu.org/t.xml.gz",
+      "http": 200,
+      "bytes": 491079,
+      "channels": 132,
+      "programmes": 34985,
+      "error": null
     }
   ]
 }
