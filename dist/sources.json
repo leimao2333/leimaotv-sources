@@ -39,8 +39,15 @@
     },
     {
       "type": "VOD",
-      "name": "jin18 · MoonTV 影视配置",
+      "name": "jin18 · 影视（MoonTV）",
       "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",
+      "enabled": true,
+      "format": "moontv"
+    },
+    {
+      "type": "VOD",
+      "name": "LunaTV · 影视（69 站）",
+      "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/LunaTV-config.txt",
       "enabled": false,
       "format": "moontv"
     }

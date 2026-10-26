@@ -172,14 +172,25 @@
     },
     {
       "id": "jin18",
-      "name": "jin18 · MoonTV 影视配置",
+      "name": "jin18 · 影视（MoonTV）",
       "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.txt",
+      "type": "VOD",
+      "format": "moontv-encrypted",
+      "merge": false,
+      "enabled": true,
+      "homepage": "https://github.com/hafrey1/LunaTV-config",
+      "note": "单行 Base58，解出来是 28 个苹果CMS 站点的清单（`api_site` 里每条 `api` 都是标准 `provide/vod` 接口）。LeimaoTV 的 MoontvVodAdapter 会把它当「一把源的集合」用：分类取首个可用站、列表与搜索按需 fan-out 并合并去重，所以这条是**能出片的影视源**，不是「只收录地址」。默认启用。"
+    },
+    {
+      "id": "lunatv",
+      "name": "LunaTV · 影视（69 站）",
+      "url": "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/LunaTV-config.txt",
       "type": "VOD",
       "format": "moontv-encrypted",
       "merge": false,
       "enabled": false,
       "homepage": "https://github.com/hafrey1/LunaTV-config",
-      "note": "单行加密串，属于 MoonTV 配置，需客户端内置 MoonTV 解密逻辑。LeimaoTV 暂不解析，仅收录地址，故默认不启用。"
+      "note": "同一作者的全量清单：69 个站点，是 jin18 的超集。站点多意味着列表与搜索要 fan-out 到更多主机，首屏更慢，所以默认不启用。嫌 jin18 片少就启用这条、同时停用 jin18 —— 两条都开等于把同一批站点拉两遍，还多一张重复的源卡片。"
     }
   ]
 }

@@ -39,7 +39,8 @@ https://gh-proxy.com/raw.githubusercontent.com/leimao2333/leimaotv-sources/main/
 | 4 | iptv-org · 中文频道 | 直播 M3U | `iptv-org.github.io/iptv/languages/zho.m3u` | 启用，上游 218 条里**只收 10 条**（见下） |
 | 5 | CCSH · 直播平台 | 直播 M3U | `raw.githubusercontent.com/CCSH/IPTV/.../main/live_platforms.m3u` | 启用，2601 条；**走独立通道**，不进主订阅 |
 | 6 | 成都/四川电信 · IPTV | 直播 M3U | `iptv.zsdc.eu.org/home/iptv.m3u8` | 启用，148 条；**走独立通道**，只对四川电信宽带可播 |
-| 7 | jin18 · MoonTV 影视配置 | 点播加密串 | `raw.githubusercontent.com/hafrey1/LunaTV-config/.../jin18.txt` | 单行加密，需客户端内置 MoonTV 解密；**不参与频道合并** |
+| 7 | jin18 · 影视（MoonTV） | 点播加密串 | `raw.githubusercontent.com/hafrey1/LunaTV-config/.../jin18.txt` | 启用，解开是 **28 个苹果CMS 站点**；**不参与频道合并** |
+| 8 | LunaTV · 影视（69 站） | 点播加密串 | `raw.githubusercontent.com/hafrey1/LunaTV-config/.../LunaTV-config.txt` | **停用**，69 个站点（jin18 的超集）；站点多 = 首屏慢，想要更多片源时再启用 |
 
 这几条的差别决定了聚合方式：
 
@@ -48,7 +49,8 @@ https://gh-proxy.com/raw.githubusercontent.com/leimao2333/leimaotv-sources/main/
 - **5 虽然也是直播**，但内容是 2600 多条「一起看」「原创IP」「zonghe」这类**平台主播直播间**，不是电视台。并进主订阅会把 600 多个电视频道直接淹掉，所以用 `output` 单独出 `dist/platforms.*`。想看电视以外的内容，单独导入这个地址。
 - **6 是成都/四川电信的 IPTV 单播源**，155 条里 148 条是 `rtsp://182.139.234.40/...`，只有四川电信宽带能连（本机实测 554 端口直接超时），另外 7 条是 `http://192.168.100.1:4022/udp/...` 这种指向上传者**自家路由器**的 udpxy 地址，外人必然不通——后者由 `drop_lan_host` 过滤掉，前者按 `output` 单独出 `dist/sichuan.*`。**不并进主订阅**：给 3000 条可播线路里塞 148 条绝大多数人播不了的地址，只会让线路降级链多走几轮无谓的超时。四川电信用户单独导入这一个文件即可。
 - **3 目前没有内容**。上游 `iptv6.txt` 和 `iptv6.m3u` 都只剩一行更新时间占位（实测 268 / 282 字节）。等上游恢复，把 `config/sources.json` 里的 `enabled` 改回 `true` 即可。
-- **7 是 MoonTV 的加密配置**，内容是一整行密文，本仓库不做解密（也不该做），只在 `sources.json` 和 README 里收录地址，供支持 MoonTV 的客户端使用。
+- **7 和 8 是 MoonTV / LunaTV 的加密影视清单**，一行 Base58，解开是 `{ "api_site": { 站点key: { name, api } } }` —— 每个 `api` 都是**标准苹果CMS `provide/vod` 接口**，所以它不是一个源，而是**一把源的集合**。本仓库不解密（也不该解密），只收录地址；客户端的 MoonTV 适配器解完码后按站点 fan-out（分类取首个可用站，列表与搜索并发取多站再合并去重），对用户呈现为「一个影视源」。
+  - 默认启用 28 站的 `jin18`：站点少、首屏快。嫌片少就把第 8 条（69 站，jin18 的超集）启用、同时停用第 7 条 —— **两条都开等于把同一批站拉两遍**，还多一张重复的源卡片。
 
 ---
 
