@@ -11,6 +11,9 @@
    而不是静默丢弃 —— 用户看得到「为什么我的台少了」。
 4. **内容不变不落盘**：输出按字节比对，一致就不写。这样 Actions 定时跑
    不会产生一堆空提交。
+5. **节目单只给地址**：EPG 一天更新多次、解开几 MB，搬进仓库只会撑爆体积。
+   脚本只负责把地址写进 m3u 的 `x-tvg-url`，并每次抓一次报「多少台多少档」，
+   上游挂了能在 manifest 里看见。
 
 LeimaoTV 兼容性约束
 -------------------
@@ -27,6 +30,7 @@ LeimaoTV 兼容性约束
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import re
@@ -36,15 +40,19 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT / "config" / "sources.json"
 DIST = ROOT / "dist"
 
 GENRE_MARK = "#genre#"
-# 判断「这一行是不是能拆出名称 + 地址」时，用 http 的位置而不是逗号：
+# 判断「这一行是不是能拆出名称 + 地址」时，用协议头的位置而不是逗号：
 # 名称里带逗号（`CCTV5+,高清`）、地址里带逗号都不至于拆错。
-HTTP_AT = re.compile(r"https?://", re.IGNORECASE)
+# 除 http(s) 还要认 rtsp / rtmp —— 电信/联通的 IPTV 单播源基本只有 rtsp，
+# 只认 http 会把整条源判成「一条都解析不出来」。不认更多协议是刻意的：
+# 认宽了会把 `C:\record\a.ts`、`/mnt/vod/b.ts` 这类脏行当成频道地址。
+STREAM_AT = re.compile(r"(?:https?|rtsp|rtmp)://", re.IGNORECASE)
 # 上游的「更新时间」占位行两种写法：2026-10-25 06:04 与 20261025 06:04。
 # 只认 8 位数字后面紧跟空白/行尾/T 的形式，免得把「2022冬奥纪实」这类真频道名误杀。
 DATE_MARKER = re.compile(r"^(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{8}(?=\s|$|T))")
@@ -116,7 +124,7 @@ def clean_channel_name(name: str) -> str:
 
 
 def split_entry(line: str) -> tuple[str, str] | None:
-    m = HTTP_AT.search(line)
+    m = STREAM_AT.search(line)
     if not m or m.start() == 0:
         return None
     name = clean_name(line[: m.start()].rstrip(" ,，\t"))
@@ -154,7 +162,7 @@ ATTR = re.compile(r'([a-zA-Z-]+)="([^"]*)"')
 def parse_m3u(text: str) -> tuple[list[dict], list[str]]:
     channels: list[dict] = []
     junk: list[str] = []
-    pending: tuple[str, str] | None = None  # (group, name)
+    pending: tuple[str, str, str | None] | None = None  # (group, name, tvg_id)
     for raw in text.splitlines():
         line = raw.strip()
         if not line or line.startswith("#EXTM3U"):
@@ -164,13 +172,18 @@ def parse_m3u(text: str) -> tuple[list[dict], list[str]]:
             group = clean_name(attrs.get("group-title", "其他")) or "其他"
             named = line.rsplit(",", 1)[-1] if "," in line else ""
             name = clean_name(attrs.get("tvg-name") or named) or "未命名"
-            pending = (group, name)
+            # `tvg-id` 是节目单的挂载点：留着它，播放器才能按 id 精确对上 EPG，
+            # 而不是靠台名猜。上游没填就是 None，输出时自然不写。
+            tvg_id = clean_name(attrs.get("tvg-id", "")) or None
+            pending = (group, name, tvg_id)
             continue
         if line.startswith("#"):
             continue
         url = line.strip()
-        if pending is not None and HTTP_AT.match(url):
-            channels.append({"group": pending[0], "name": pending[1], "url": url})
+        if pending is not None and STREAM_AT.match(url):
+            channels.append(
+                {"group": pending[0], "name": pending[1], "url": url, "tvg_id": pending[2]}
+            )
         else:
             junk.append(line)
         pending = None
@@ -222,6 +235,24 @@ def is_point_file(url: str, f: dict) -> bool:
         return False
     path = url.split("?", 1)[0].split("#", 1)[0].lower()
     return path.endswith((".mp4", ".m4v"))
+
+
+# 内网/回环地址：`192.168.100.1:4022/udp/239.94.0.122:5140` 这种是**上传者自己家路由器**
+# 上的 udpxy/msd_lite 端口。别人导进来必然连不上，只会给线路降级链添一条必然失败的线路。
+LAN_HOST = re.compile(
+    r"^(?:localhost|127\.|0\.0\.0\.0$|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)", re.I
+)
+
+
+def is_lan_url(url: str, f: dict) -> bool:
+    """地址指向内网时丢弃（按源开关，默认关）。"""
+    if not f.get("drop_lan_host"):
+        return False
+    try:
+        host = urlsplit(url).hostname or ""
+    except ValueError:
+        return False
+    return bool(LAN_HOST.match(host))
 
 
 # --------------------------------------------------------------------------- #
@@ -350,10 +381,17 @@ def aggregate(cfg: dict) -> tuple[dict[str, list[dict]], list[dict]]:
                         {"name": ch["name"], "url": ch["url"], "reason": "单文件点播地址（.mp4 等），不是直播流"}
                     )
                     continue
+                if is_lan_url(ch["url"], f):
+                    entry["filtered"].append(
+                        {"name": ch["name"], "url": ch["url"], "reason": "内网地址（udpxy 指向上传者自家路由器），别人连不上"}
+                    )
+                    continue
                 ch["name"] = clean_channel_name(ch["name"])
                 # 组名归一只作用在主订阅。独立通道保留上游原组名，
                 # 否则「一起看」「原创IP」这类会被 local_suffix 规则误折进地方频道。
-                if stream == "main":
+                # 例外：源自己声明了 `canonical_groups`（组名本来就是 CCTV/卫视/四川
+                # 这类电视台分组，只是没写成本仓的统一名），就照样归一。
+                if stream == "main" or src.get("canonical_groups"):
                     ch["group"] = canonical_group(ch["group"], cfg)
                 ch["url"] = normalize_url(ch["url"])
                 key = (ch["group"], ch["name"], ch["url"])
@@ -395,14 +433,28 @@ def build_txt(channels: list[dict], order: list[str]) -> str:
     return "\ufeff" + "\n".join(lines).rstrip() + "\n"
 
 
-def build_m3u(channels: list[dict], order: list[str]) -> str:
-    out = ["#EXTM3U"]
+def build_m3u(channels: list[dict], order: list[str], epg_urls: list[str] | None = None) -> str:
+    """M3U 输出。带 `x-tvg-url` 与 `tvg-id`，播放器才会自己去拉节目单。
+
+    `x-tvg-url` 是 Kodi / TiviMate / APTV 都认的写法，写在 `#EXTM3U` 同一行。
+    没有 `tvg-id` 的条目不给它编一个 —— 编出来的 id 一旦撞上别的台，节目单
+    会张冠李戴，比「这个台没有节目单」更让人困惑。这类条目靠播放器按台名兜底匹配，
+    而本仓台名（`CCTV1` `湖南卫视`）恰好就是上游 EPG 的 channel id。
+    """
+    head = "#EXTM3U"
+    if epg_urls:
+        head += f' x-tvg-url="{",".join(epg_urls)}"'
+    out = [head]
     for group in order_groups(channels, order):
         for ch in channels:
             if ch["group"] != group:
                 continue
             safe = ch["name"].replace('"', "'")
-            out.append(f'#EXTINF:-1 tvg-name="{safe}" group-title="{group}",{ch["name"]}')
+            attrs = ""
+            tvg_id = (ch.get("tvg_id") or "").strip().replace('"', "'")
+            if tvg_id:
+                attrs += f' tvg-id="{tvg_id}"'
+            out.append(f'#EXTINF:-1{attrs} tvg-name="{safe}" group-title="{group}",{ch["name"]}')
             out.append(ch["url"])
     return "\n".join(out) + "\n"
 
@@ -449,6 +501,46 @@ def normalize_format(fmt: str | None) -> str | None:
     return None  # txt / m3u 等直播格式不需要客户端做格式区分
 
 
+# --------------------------------------------------------------------------- #
+# 节目单（EPG）体检
+# --------------------------------------------------------------------------- #
+CHANNEL_TAG = re.compile(r"<channel\b")
+PROGRAMME_TAG = re.compile(r"<programme\b")
+
+
+def probe_epg(epg: dict, ua: str, timeout: int, retries: int) -> dict:
+    """抓一次节目单，报「能不能下、解开有多少台多少档」。
+
+    只体检、不搬运：XMLTV 一天更新好几次、解压后几 MB 起步，每天提交一份
+    几 MB 的 XML 会把仓库撑成垃圾桶。本仓交付的是**地址**，这里只负责证明
+    那个地址还活着 —— 否则 README 里写着「有节目单」，实际 404 了也没人知道。
+    """
+    raw, status, err = fetch(epg["url"], ua, timeout, retries)
+    entry = {
+        "id": epg.get("id"),
+        "name": epg.get("name"),
+        "url": epg["url"],
+        "http": status,
+        "bytes": len(raw),
+        "channels": 0,
+        "programmes": 0,
+        "error": err,
+    }
+    if not raw:
+        return entry
+    try:
+        data = gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw
+    except OSError as exc:
+        entry["error"] = f"gzip 解压失败：{exc}"
+        return entry
+    text = decode(data)
+    entry["channels"] = len(CHANNEL_TAG.findall(text))
+    entry["programmes"] = len(PROGRAMME_TAG.findall(text))
+    if entry["channels"] == 0:
+        entry["error"] = "不是 XMLTV：解开后一个 <channel> 都没有"
+    return entry
+
+
 def write_if_changed(path: Path, content: str) -> dict:
     data = content.encode("utf-8")
     old = path.read_bytes() if path.exists() else None
@@ -465,7 +557,7 @@ def write_if_changed(path: Path, content: str) -> dict:
 
 
 def manifest_payload(channels: list[dict], counts: dict[str, int], order: list[str],
-                     outputs: list[dict], report: list[dict]) -> dict:
+                     outputs: list[dict], report: list[dict], epg: list[dict]) -> dict:
     """manifest 里**不含时间**的部分。时间单独处理，否则每天都会因为时间戳产生提交。"""
     return {
         "total_channels": len(channels),
@@ -474,11 +566,20 @@ def manifest_payload(channels: list[dict], counts: dict[str, int], order: list[s
         # changed 是本次运行的临时状态，不进产物：它会让指纹每次都不同
         "outputs": [{"path": o["path"], "bytes": o["bytes"], "sha256": o["sha256"]} for o in outputs],
         "upstreams": report,
+        "epg": epg,
     }
 
 
+# 节目单不进内容指纹：EPG 一天更新好几次，字节数天天变，算进去等于让本仓
+# 每天都产出一笔「只改了节目单条数」的提交 —— 那正是 fingerprint 要防的事。
+# 代价是「上游频道全没变、只有 EPG 挂了」这种情况不会触发提交，但 manifest
+# 里的 epg 段会在下一次真实变化时刷新，体检目的（能看见挂没挂）已经达到。
+FINGERPRINT_SKIP = ("epg",)
+
+
 def fingerprint_of(payload: dict) -> str:
-    blob = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    stable = {k: v for k, v in payload.items() if k not in FINGERPRINT_SKIP}
+    blob = json.dumps(stable, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
@@ -504,6 +605,13 @@ def main() -> int:
     streams, report = aggregate(cfg)
     channels = streams.get("main", [])
     order = cfg.get("group_order", [])
+    epg_cfg = [e for e in cfg.get("epg", []) if e.get("enabled", True)]
+    epg_urls = [e["url"] for e in epg_cfg]
+
+    ua = cfg.get("ua", "Mozilla/5.0")
+    timeout = int(cfg.get("timeout_seconds", 30))
+    retries = int(cfg.get("retries", 2))
+    epg = [probe_epg(e, ua, timeout, retries) for e in epg_cfg]
 
     counts: dict[str, int] = {}
     for ch in channels:
@@ -524,6 +632,14 @@ def main() -> int:
             line += f"  → 独立通道 {stream}"
         print(line)
 
+    for item in epg:
+        state = "OK " if not item["error"] else "ERR"
+        line = f"  [{state}] EPG {item['id']:<11} http={item['http']:<3} bytes={item['bytes']:<7}"
+        line += f" 台={item['channels']:<4} 档={item['programmes']}"
+        if item["error"]:
+            line += f"  错误={item['error']}"
+        print(line)
+
     # 独立通道各自出文件；空通道不落盘，免得上游空窗期留下 0 频道的死文件
     extra = {name: chans for name, chans in streams.items() if name != "main" and chans}
 
@@ -533,13 +649,13 @@ def main() -> int:
 
     outputs = []
     outputs.append(write_if_changed(DIST / "live.txt", build_txt(channels, order)))
-    outputs.append(write_if_changed(DIST / "live.m3u", build_m3u(channels, order)))
+    outputs.append(write_if_changed(DIST / "live.m3u", build_m3u(channels, order, epg_urls)))
     for name, chans in extra.items():
         outputs.append(write_if_changed(DIST / f"{name}.txt", build_txt(chans, order)))
-        outputs.append(write_if_changed(DIST / f"{name}.m3u", build_m3u(chans, order)))
+        outputs.append(write_if_changed(DIST / f"{name}.m3u", build_m3u(chans, order, epg_urls)))
     outputs.append(write_if_changed(DIST / "sources.json", build_sources_json(cfg)))
 
-    payload = manifest_payload(channels, counts, order, outputs, report)
+    payload = manifest_payload(channels, counts, order, outputs, report, epg)
     fingerprint = fingerprint_of(payload)
     manifest_path = DIST / "manifest.json"
 

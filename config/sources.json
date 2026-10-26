@@ -39,6 +39,9 @@
     "电视剧": "电视剧频道",
     "纪录片": "纪录频道",
     "记录频道": "纪录频道",
+    "CCTV": "央视频道",
+    "卫视": "卫视频道",
+    "四川": "地方频道",
     "国际台": "国际频道",
     "国际": "国际频道",
     "春晚": "春晚频道",
@@ -76,6 +79,16 @@
     "local_suffix": ["频道"],
     "_note": "以「频道」结尾、但既不在 group_order 也不在 group_alias 里的组名，判为省级/城市地方台，统一归入地方频道。这样「浙江频道」「上海频道」不会各占一行。"
   },
+  "epg": [
+    {
+      "id": "zsdc",
+      "name": "zsdc · 央视/卫视节目单",
+      "url": "https://epg.zsdc.eu.org/t.xml.gz",
+      "format": "xmltv-gz",
+      "enabled": true,
+      "note": "只收录地址、不搬内容：XMLTV 解开 6.9 MB、一天更新多次，每天提交一份进仓库是自找麻烦。124 个 channel id 里 77 个与本仓台名逐字相同（CCTV1…CCTV17、各省卫视、凤凰、CHC），所以直接挂到 m3u 的 x-tvg-url 上，播放器按台名就能对上；对不上的那部分是四川本地台与付费专区。脚本每次会抓一次报台数/档数，上游挂了在 manifest 里看得见。同一份内容还有个未压缩的 https://epg.zsdc.eu.org/t.xml （6.9 MB，Content-Type: application/xml）—— 本仓用 .gz 是因为播放器自己会解压、省一半流量；LeimaoTV 当前只按纯文本解析，填 .gz 会报「节目单损坏」，那边要用 t.xml。"
+    }
+  ],
   "sources": [
     {
       "id": "iptv4",
@@ -140,6 +153,22 @@
       "enabled": true,
       "homepage": "https://github.com/CCSH/IPTV",
       "note": "2600 多条「一起看」「原创IP」「zonghe」等平台直播间，不是电视台。放进主订阅会把 600 多个电视频道直接淹掉，所以走 output 单独出 dist/platforms.*，想看电视以外的内容再单独导入。"
+    },
+    {
+      "id": "zsdc_sc",
+      "name": "成都/四川电信 · IPTV",
+      "url": "https://iptv.zsdc.eu.org/home/iptv.m3u8",
+      "type": "LIVE",
+      "format": "m3u",
+      "merge": true,
+      "output": "sichuan",
+      "canonical_groups": true,
+      "enabled": true,
+      "homepage": "https://github.com/suzukua/iptv-cd-telecom",
+      "filter": {
+        "drop_lan_host": true
+      },
+      "note": "站点根地址 https://iptv.zsdc.eu.org 是说明页（HTML），真正的播放列表在 /home/iptv.m3u8；APTV 版 apt_iptv.m3u8 只是把回看模板换成 ${(b)yyyyMMddHHmmss} 那种写法，本仓不搬 catchup 属性，取标准版即可。155 条里 148 条是 rtsp://182.139.234.40（四川电信单播，非该省宽带基本连不上，本机实测 554 端口超时），另 7 条是 http://192.168.100.1:4022 的 udpxy —— 那是上传者自家路由器，外人必然不通，靠 drop_lan_host 丢掉。正因为对绝大多数人不可播，走 output 单独出 dist/sichuan.*，不进主订阅去污染线路降级链。"
     },
     {
       "id": "jin18",
