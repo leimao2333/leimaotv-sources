@@ -1,29 +1,29 @@
 {
-  "generated_at": "2026-10-31 17:15:46 +0000",
-  "generated_at_iso": "2026-10-31T17:15:46+00:00",
-  "fingerprint": "63c06675f53f4230",
-  "total_channels": 2620,
+  "generated_at": "2026-11-01 06:12:50 +0000",
+  "generated_at_iso": "2026-11-01T06:12:50+00:00",
+  "fingerprint": "33b5019b866e6e30",
+  "total_channels": 2648,
   "total_groups": 18,
   "groups": [
     {
       "name": "央视频道",
-      "count": 481
+      "count": 491
     },
     {
       "name": "卫视频道",
-      "count": 718
+      "count": 722
     },
     {
       "name": "地方频道",
-      "count": 794
+      "count": 793
     },
     {
       "name": "体育频道",
-      "count": 36
+      "count": 42
     },
     {
       "name": "电影频道",
-      "count": 85
+      "count": 84
     },
     {
       "name": "电视剧频道",
@@ -35,7 +35,7 @@
     },
     {
       "name": "儿童频道",
-      "count": 55
+      "count": 56
     },
     {
       "name": "纪录频道",
@@ -43,7 +43,7 @@
     },
     {
       "name": "音乐频道",
-      "count": 3
+      "count": 5
     },
     {
       "name": "戏曲频道",
@@ -67,11 +67,11 @@
     },
     {
       "name": "港澳台",
-      "count": 176
+      "count": 182
     },
     {
       "name": "国际频道",
-      "count": 13
+      "count": 14
     },
     {
       "name": "其他",
@@ -81,23 +81,23 @@
   "outputs": [
     {
       "path": "dist/live.txt",
-      "bytes": 237020,
-      "sha256": "361b533b6dd74831"
+      "bytes": 233052,
+      "sha256": "7bd1b1f6dba47b75"
     },
     {
       "path": "dist/live.m3u",
-      "bytes": 399179,
-      "sha256": "cec8c0c18c22a431"
+      "bytes": 396868,
+      "sha256": "13dcca14b445254b"
     },
     {
       "path": "dist/platforms.txt",
-      "bytes": 203499,
-      "sha256": "5c091733bce2f1a9"
+      "bytes": 144059,
+      "sha256": "158c5ea095f69969"
     },
     {
       "path": "dist/platforms.m3u",
-      "bytes": 428784,
-      "sha256": "94d1d47c998d1052"
+      "bytes": 304817,
+      "sha256": "fa74b175fb6da63b"
     },
     {
       "path": "dist/sichuan.txt",
@@ -123,10 +123,10 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 44475,
+      "bytes": 49549,
       "merged": true,
       "stream": "main",
-      "accepted": 510,
+      "accepted": 546,
       "duplicated": 3,
       "filtered": [
         {
@@ -225,7 +225,7 @@
           "reason": "单文件点播地址（.mp4 等），不是直播流"
         },
         {
-          "name": "2026-11-01 00:20:31",
+          "name": "2026-11-01 12:29:10",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -244,14 +244,14 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 223967,
+      "bytes": 217877,
       "merged": true,
       "stream": "main",
-      "accepted": 2100,
-      "duplicated": 249,
+      "accepted": 2092,
+      "duplicated": 271,
       "filtered": [
         {
-          "name": "20261031 07:21",
+          "name": "20261101 06:55",
           "url": "http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226537/index.m3u8",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -607,7 +607,7 @@
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-11-01 00:20:31",
+          "name": "2026-11-01 12:29:10",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -1722,14 +1722,14 @@
       "type": "LIVE",
       "format": "m3u",
       "http": 200,
-      "bytes": 676933,
+      "bytes": 504148,
       "merged": true,
       "stream": "platforms",
-      "accepted": 3474,
+      "accepted": 2593,
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-10-31 15:48:16",
+          "name": "2026-11-01 06:56:28",
           "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/time/time.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         }
@@ -1826,9 +1826,9 @@
       "name": "zsdc · 央视/卫视节目单",
       "url": "https://epg.zsdc.eu.org/t.xml.gz",
       "http": 200,
-      "bytes": 468496,
-      "channels": 135,
-      "programmes": 33260,
+      "bytes": 516468,
+      "channels": 137,
+      "programmes": 36744,
       "error": null
     }
   ]
