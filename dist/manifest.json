@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-05 06:53:38 +0000",
-  "generated_at_iso": "2026-11-05T06:53:38+00:00",
-  "fingerprint": "af5994f8c64a4443",
-  "total_channels": 4308,
+  "generated_at": "2026-11-05 19:59:34 +0000",
+  "generated_at_iso": "2026-11-05T19:59:34+00:00",
+  "fingerprint": "386f5b3368a0b0a0",
+  "total_channels": 4314,
   "total_groups": 19,
   "groups": [
     {
@@ -11,19 +11,19 @@
     },
     {
       "name": "卫视频道",
-      "count": 791
+      "count": 790
     },
     {
       "name": "地方频道",
-      "count": 1765
+      "count": 1766
     },
     {
       "name": "体育频道",
-      "count": 77
+      "count": 71
     },
     {
       "name": "电影频道",
-      "count": 204
+      "count": 218
     },
     {
       "name": "电视剧频道",
@@ -35,7 +35,7 @@
     },
     {
       "name": "儿童频道",
-      "count": 127
+      "count": 125
     },
     {
       "name": "纪录频道",
@@ -85,23 +85,23 @@
   "outputs": [
     {
       "path": "dist/live.txt",
-      "bytes": 373071,
-      "sha256": "1dde635c525f6d67"
+      "bytes": 373273,
+      "sha256": "908bde6abe7540db"
     },
     {
       "path": "dist/live.m3u",
-      "bytes": 643148,
-      "sha256": "c2cba8e957c0cc20"
+      "bytes": 643781,
+      "sha256": "4d8a75379fd0750e"
     },
     {
       "path": "dist/platforms.txt",
-      "bytes": 155089,
-      "sha256": "98d464b9877fa868"
+      "bytes": 186239,
+      "sha256": "09b85bdd01a11022"
     },
     {
       "path": "dist/platforms.m3u",
-      "bytes": 327396,
-      "sha256": "d2d6730d92c91ddb"
+      "bytes": 392783,
+      "sha256": "60e39fac290d7f5d"
     },
     {
       "path": "dist/sichuan.txt",
@@ -127,10 +127,10 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 41882,
+      "bytes": 42008,
       "merged": true,
       "stream": "main",
-      "accepted": 488,
+      "accepted": 493,
       "duplicated": 3,
       "filtered": [
         {
@@ -229,7 +229,7 @@
           "reason": "单文件点播地址（.mp4 等），不是直播流"
         },
         {
-          "name": "2026-11-05 12:27:01",
+          "name": "2026-11-06 00:20:29",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -251,8 +251,8 @@
       "bytes": 362541,
       "merged": true,
       "stream": "main",
-      "accepted": 3810,
-      "duplicated": 176,
+      "accepted": 3811,
+      "duplicated": 175,
       "filtered": [
         {
           "name": "20261105 08:36",
@@ -711,7 +711,7 @@
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-11-05 12:27:01",
+          "name": "2026-11-06 00:20:29",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -1831,14 +1831,14 @@
       "type": "LIVE",
       "format": "m3u",
       "http": 200,
-      "bytes": 533502,
+      "bytes": 628253,
       "merged": true,
       "stream": "platforms",
-      "accepted": 2744,
+      "accepted": 3233,
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-11-05 09:54:28",
+          "name": "2026-11-05 16:47:27",
           "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/time/time.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         }
@@ -1935,9 +1935,9 @@
       "name": "zsdc · 央视/卫视节目单",
       "url": "https://epg.zsdc.eu.org/t.xml.gz",
       "http": 200,
-      "bytes": 868088,
+      "bytes": 721488,
       "channels": 135,
-      "programmes": 37193,
+      "programmes": 31641,
       "error": null
     }
   ]
