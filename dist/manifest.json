@@ -1,29 +1,29 @@
 {
-  "generated_at": "2026-11-06 19:27:45 +0000",
-  "generated_at_iso": "2026-11-06T19:27:45+00:00",
-  "fingerprint": "31d31cccd69fb320",
-  "total_channels": 3817,
+  "generated_at": "2026-11-07 06:03:43 +0000",
+  "generated_at_iso": "2026-11-07T06:03:43+00:00",
+  "fingerprint": "5c819cbaa8404496",
+  "total_channels": 4018,
   "total_groups": 18,
   "groups": [
     {
       "name": "央视频道",
-      "count": 641
+      "count": 690
     },
     {
       "name": "卫视频道",
-      "count": 802
+      "count": 811
     },
     {
       "name": "地方频道",
-      "count": 1646
+      "count": 1687
     },
     {
       "name": "体育频道",
-      "count": 71
+      "count": 77
     },
     {
       "name": "电影频道",
-      "count": 180
+      "count": 202
     },
     {
       "name": "电视剧频道",
@@ -31,31 +31,31 @@
     },
     {
       "name": "综艺频道",
-      "count": 1
-    },
-    {
-      "name": "儿童频道",
-      "count": 111
-    },
-    {
-      "name": "纪录频道",
-      "count": 35
-    },
-    {
-      "name": "音乐频道",
       "count": 5
     },
     {
+      "name": "儿童频道",
+      "count": 120
+    },
+    {
+      "name": "纪录频道",
+      "count": 36
+    },
+    {
+      "name": "音乐频道",
+      "count": 3
+    },
+    {
       "name": "戏曲频道",
-      "count": 12
+      "count": 14
     },
     {
       "name": "游戏频道",
-      "count": 6
+      "count": 7
     },
     {
       "name": "数字频道",
-      "count": 43
+      "count": 67
     },
     {
       "name": "解说频道",
@@ -67,11 +67,11 @@
     },
     {
       "name": "港澳台",
-      "count": 164
+      "count": 197
     },
     {
       "name": "国际频道",
-      "count": 15
+      "count": 17
     },
     {
       "name": "其他",
@@ -81,23 +81,23 @@
   "outputs": [
     {
       "path": "dist/live.txt",
-      "bytes": 332843,
-      "sha256": "9a8de18296129c1b"
+      "bytes": 360267,
+      "sha256": "e11977b1069d35e5"
     },
     {
       "path": "dist/live.m3u",
-      "bytes": 570951,
-      "sha256": "599eaaf2a4e77e04"
+      "bytes": 610740,
+      "sha256": "efdd6c9db3407305"
     },
     {
       "path": "dist/platforms.txt",
-      "bytes": 165551,
-      "sha256": "5dd35c75a27386dd"
+      "bytes": 151790,
+      "sha256": "78239b84c8d303ca"
     },
     {
       "path": "dist/platforms.m3u",
-      "bytes": 349302,
-      "sha256": "3fd96070d94d9cfb"
+      "bytes": 320647,
+      "sha256": "568f4d257ad29abd"
     },
     {
       "path": "dist/sichuan.txt",
@@ -123,10 +123,10 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 42540,
+      "bytes": 41280,
       "merged": true,
       "stream": "main",
-      "accepted": 470,
+      "accepted": 482,
       "duplicated": 3,
       "filtered": [
         {
@@ -225,7 +225,7 @@
           "reason": "单文件点播地址（.mp4 等），不是直播流"
         },
         {
-          "name": "2026-11-07 00:19:56",
+          "name": "2026-11-07 12:26:35",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -244,14 +244,14 @@
       "type": "LIVE",
       "format": "txt",
       "http": 200,
-      "bytes": 322477,
+      "bytes": 349059,
       "merged": true,
       "stream": "main",
-      "accepted": 3337,
-      "duplicated": 239,
+      "accepted": 3526,
+      "duplicated": 223,
       "filtered": [
         {
-          "name": "20261106 08:37",
+          "name": "20261107 07:53",
           "url": "http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226537/index.m3u8",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -589,6 +589,26 @@
           "name": "《野狼的士高》",
           "url": "https://vd2.bdstatic.com/mda-ncp47pjrm7kqjfwq/720p/h264_delogo/1648091187992655346/mda-ncp47pjrm7kqjfwq.mp4",
           "reason": "单文件点播地址（.mp4 等），不是直播流"
+        },
+        {
+          "name": "TVBPlus,mitv://135.148.104.228:19806/faf51cf453a84400be019b14939e49f6",
+          "url": "",
+          "reason": "无法解析为「名称,地址」"
+        },
+        {
+          "name": "TVBPlus,mitv://147.135.39.171:9906/65fd6048000be8b2a085bc4d061c504d",
+          "url": "",
+          "reason": "无法解析为「名称,地址」"
+        },
+        {
+          "name": "ViuTV,P2p://generationnexxxt.com:19806/956aa1340cd5439689da84cff7a5eaae",
+          "url": "",
+          "reason": "无法解析为「名称,地址」"
+        },
+        {
+          "name": "ViuTV,mitv://135.148.104.228:19806/956aa1340cd5439689da84cff7a5eaae",
+          "url": "",
+          "reason": "无法解析为「名称,地址」"
         }
       ],
       "error": null
@@ -607,7 +627,7 @@
       "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-11-07 00:19:56",
+          "name": "2026-11-07 12:26:35",
           "url": "https://vd2.bdstatic.com/mda-sctj0f6r4u1bpebc/1080p/cae_h264/1774706523506678171/mda-sctj0f6r4u1bpebc.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
         },
@@ -626,7 +646,7 @@
       "type": "LIVE",
       "format": "m3u",
       "http": 200,
-      "bytes": 46557,
+      "bytes": 46987,
       "merged": true,
       "stream": "main",
       "accepted": 10,
@@ -1678,6 +1698,16 @@
           "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
         },
         {
+          "name": "Yichang Sanxia General Channel",
+          "url": "https://liveplay.ycrmt.cn/sxgd/zhpd.m3u8",
+          "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
+        },
+        {
+          "name": "Yichang Sanxia Travel & Life Channel",
+          "url": "https://liveplay.ycrmt.cn/sxgd/lysh.m3u8",
+          "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
+        },
+        {
           "name": "You Man Cartoon Channel (576p)",
           "url": "http://183.207.249.15/PLTV/4/224/3221225933/index.m3u8",
           "reason": "台名既无中文也无 Chinese/Mandarin 等中文标识，中文列表里没法用"
@@ -1727,41 +1757,16 @@
       "type": "LIVE",
       "format": "m3u",
       "http": 200,
-      "bytes": 567924,
+      "bytes": 524813,
       "merged": true,
       "stream": "platforms",
-      "accepted": 2910,
-      "duplicated": 2,
+      "accepted": 2701,
+      "duplicated": 0,
       "filtered": [
         {
-          "name": "2026-11-06 12:26:32",
+          "name": "2026-11-07 09:28:23",
           "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/time/time.mp4",
           "reason": "日期标记行（上游的更新时间戳，不是频道）"
-        },
-        {
-          "name": "2026-11-06 12:26:30",
-          "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/time/time.mp4",
-          "reason": "日期标记行（上游的更新时间戳，不是频道）"
-        },
-        {
-          "name": "2026-11-06 12:26:27",
-          "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/hlg4kvideo/playlist.m3u8",
-          "reason": "日期标记行（上游的更新时间戳，不是频道）"
-        },
-        {
-          "name": "2026-11-06 12:26:24",
-          "url": "https://cdn.jsdelivr.net/gh/feiyang666999/testvideo/hlg4kvideo/playlist.m3u8",
-          "reason": "日期标记行（上游的更新时间戳，不是频道）"
-        },
-        {
-          "name": "，毎日がworkday",
-          "url": "",
-          "reason": "无法解析为「名称,地址」"
-        },
-        {
-          "name": "https://live.ottiptv.cc/bilibili/22415171",
-          "url": "",
-          "reason": "无法解析为「名称,地址」"
         }
       ],
       "error": null
@@ -1856,9 +1861,9 @@
       "name": "zsdc · 央视/卫视节目单",
       "url": "https://epg.zsdc.eu.org/t.xml.gz",
       "http": 200,
-      "bytes": 722691,
+      "bytes": 735392,
       "channels": 135,
-      "programmes": 31911,
+      "programmes": 33464,
       "error": null
     }
   ]
